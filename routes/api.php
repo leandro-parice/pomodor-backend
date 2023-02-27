@@ -2,9 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
-use App\Models\User;
+use App\Http\Controllers\Api\JobController;
+use App\Http\Controllers\Api\UserAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,24 +20,8 @@ use App\Models\User;
 //     return $request->user();
 // });
 
-Route::post('/login', function(Request $request){
-    // $request->validate([
-    //     'email' => 'required|email',
-    //     'password' => 'required',
-    //     'device_name' => 'required',
-    // ]);
- 
-    $user = User::where('email', 'olaf.koss@example.org')->first();
- 
-    if (! $user || ! Hash::check('password', $user->password)) {
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials are incorrect.'],
-        ]);
-    }
- 
-    return $user->createToken('insomnia')->plainTextToken;
-});
+Route::post('/login', [UserAuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/job/store', [JobController::class, 'store']);
 });
